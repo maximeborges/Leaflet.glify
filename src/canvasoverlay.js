@@ -114,18 +114,9 @@ L.CanvasOverlay = L.Layer.extend({
         this._frame = null;
     },
 
-    _getTranslationString: function(point) {
-        var is3d = L.Browser.webkit3d,
-            open = 'translate' + (is3d ? '3d' : '') + '(',
-            close = (is3d ? ',0' : '') + ')';
-
-        return open + point.x + 'px,' + point.y + 'px' + close;
-    },
-
     _animateZoom: function (e) {
-        var scale = this._map.getZoomScale(e.zoom)
-            , offset = this._map._getCenterOffset(e.center)._multiplyBy(-scale).subtract(this._map._getMapPanePos())
-        ;
+        const scale = this._map.getZoomScale(e.zoom);
+        const offset = this._map._getCenterOffset(e.center)._multiplyBy(-scale).subtract(this._map._getMapPanePos());
 
         L.DomUtil.setTransform(this.canvas, offset, scale);
     }
