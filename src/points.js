@@ -1,4 +1,4 @@
-import { defaults, tryFunction } from '../glify';
+import { defaults, tryFunction } from './helpers';
 
 /**
  *

@@ -1,8 +1,8 @@
 //top-message
 import './canvasoverlay.js';
-import PointFunction from './glify/points';
-import ShapeFunction from './glify/shapes';
-import MapMatrix from './glify/map-matrix';
+import PointFunction from './points';
+import ShapeFunction from './shapes';
+import MapMatrix from './map-matrix';
 
 const dot = require('./shader/fragment/dot.glsl');
 const point = require('./shader/fragment/point.glsl');
@@ -11,44 +11,6 @@ const simpleCircle = require('./shader/fragment/simple-circle.glsl');
 const square = require('./shader/fragment/square.glsl');
 const polygon = require('./shader/fragment/polygon.glsl');
 const defaultGlsl = require('./shader/vertex/default.glsl');
-
-function glslMin(src) {
-    const s = src
-    //remove possible pointless windows character
-        .replace(/\r/g, '')
-        //remove comments
-        .replace(/[/][/].*\n/g, '')
-        //remove line breaks
-        .replace(/\n/g, '')
-        //remove tabs
-        .replace(/\t+/g, ' ')
-        //remove big spaces
-        .replace(/\s\s+|\t/g, ' ');
-
-    console.log(s);
-    return s;
-}
-
-export function defaults(userSettings, defaults) {
-    let settings = {},
-        i;
-
-    for (i in defaults) if (defaults.hasOwnProperty(i)) {
-        settings[i] = (userSettings.hasOwnProperty(i) ? userSettings[i] : defaults[i]);
-    }
-
-    return settings;
-}
-
-export function tryFunction(it, lookup) {
-    //see if it is actually a function
-    if (typeof it === 'function') return it;
-
-    //we know that it isn't a function, but lookup[it] might be, check that here
-    if (typeof lookup === 'undefined' || !lookup.hasOwnProperty(it)) return null;
-
-    return lookup[it];
-}
 
 (function (window, document, L, undefined) {
 

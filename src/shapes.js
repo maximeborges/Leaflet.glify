@@ -1,4 +1,4 @@
-import { defaults, tryFunction } from '../glify';
+import { defaults, tryFunction } from './helpers';
 import PolygonLookup from 'polygon-lookup';
 import earcut from 'earcut';
 
