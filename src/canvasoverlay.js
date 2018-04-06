@@ -127,7 +127,7 @@ L.CanvasOverlay = L.Layer.extend({
             , offset = this._map._getCenterOffset(e.center)._multiplyBy(-scale).subtract(this._map._getMapPanePos())
         ;
 
-        this.canvas.style[L.DomUtil.TRANSFORM] = this._getTranslationString(offset) + ' scale(' + scale + ')';
+        L.DomUtil.setTransform(this.canvas, offset, scale);
     }
 });
 

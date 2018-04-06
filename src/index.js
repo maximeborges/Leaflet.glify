@@ -1,3 +1,4 @@
+import './style/app.scss';
 import 'leaflet';
 
 import './glify.js';
@@ -12,8 +13,7 @@ import '../node_modules/rbush/rbush.js';
 import '../node_modules/point-in-polygon/index.js';
 
 
-var map = L.map('map')
-    .setView([50.00, 14.44], 8);
+const map = L.map('map').setView([50.00, 14.44], 8);
 
 L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-background,$fff[difference],$fff[@23],$fff[hsl-saturation@20],toner-lines[destination-in])/{z}/{x}/{y}.png")
     .addTo(map);
