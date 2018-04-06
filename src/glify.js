@@ -1,4 +1,5 @@
 //top-message
+import './canvasoverlay.js';
 import PointFunction from './glify/points';
 import ShapeFunction from './glify/shapes';
 import MapMatrix from './glify/map-matrix';
@@ -26,7 +27,7 @@ function glslMin(src) {
 }
 
 export function defaults(userSettings, defaults) {
-    var settings = {},
+    let settings = {},
         i;
 
     for (i in defaults) if (defaults.hasOwnProperty(i)) {
@@ -51,16 +52,6 @@ export function tryFunction(it, lookup) {
     L.glify = {
         longitudeKey: 1,
         latitudeKey: 0,
-        longitudeFirst: function () {
-            L.glify.longitudeKey = 0;
-            L.glify.latitudeKey = 1;
-            return L.glify;
-        },
-        latitudeFirst: function () {
-            L.glify.latitudeKey = 0;
-            L.glify.longitudeKey = 1;
-            return L.glify;
-        },
         get instances() {
             return []
                 .concat(L.glify.Points.instances)
@@ -73,13 +64,13 @@ export function tryFunction(it, lookup) {
             return new this.Shapes(settings);
         },
         flattenData: function (data) {
-            var dim = data[0][0].length,
+            let dim = data[0][0].length,
                 result = {vertices: [], holes: [], dimensions: dim},
                 holeIndex = 0;
 
-            for (var i = 0; i < data.length; i++) {
-                for (var j = 0; j < data[i].length; j++) {
-                    for (var d = 0; d < dim; d++) result.vertices.push(data[i][j][d]);
+            for (let i = 0; i < data.length; i++) {
+                for (let j = 0; j < data[i].length; j++) {
+                    for (let d = 0; d < dim; d++) result.vertices.push(data[i][j][d]);
                 }
                 if (i > 0) {
                     holeIndex += data[i - 1].length;
@@ -92,7 +83,7 @@ export function tryFunction(it, lookup) {
         // -- converts latlon to pixels at zoom level 0 (for 256x256 tile size) , inverts y coord )
         // -- source : http://build-failed.blogspot.cz/2013/02/displaying-webgl-data-on-google-maps.html
         latLonToPixel: function (latitude, longitude) {
-            var pi180 = Math.PI / 180.0,
+            let pi180 = Math.PI / 180.0,
                 pi4 = Math.PI * 4,
                 sinLatitude = Math.sin(latitude * pi180),
                 pixelY = (0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (pi4)) * 256,
@@ -107,7 +98,7 @@ export function tryFunction(it, lookup) {
             if (this.maps.indexOf(map) < 0) {
                 this.maps.push(map);
                 map.on('click', function (e) {
-                    var hit;
+                    let hit;
                     hit = L.glify.Points.tryClick(e, map);
                     if (hit !== undefined) return hit;
 
@@ -119,11 +110,11 @@ export function tryFunction(it, lookup) {
             }
         },
         pointInCircle: function (centerPoint, checkPoint, radius) {
-            var distanceSquared = (centerPoint.x - checkPoint.x) * (centerPoint.x - checkPoint.x) + (centerPoint.y - checkPoint.y) * (centerPoint.y - checkPoint.y);
+            let distanceSquared = (centerPoint.x - checkPoint.x) * (centerPoint.x - checkPoint.x) + (centerPoint.y - checkPoint.y) * (centerPoint.y - checkPoint.y);
             return distanceSquared <= radius * radius;
         },
         attachShaderVars: function (size, gl, program, attributes) {
-            var name,
+            let name,
                 loc,
                 attribute,
                 bytes = 5;
@@ -142,7 +133,7 @@ export function tryFunction(it, lookup) {
             return this;
         },
         debugPoint: function (containerPoint) {
-            var el = document.createElement('div'),
+            let el = document.createElement('div'),
                 s = el.style,
                 x = containerPoint.x,
                 y = containerPoint.y;
@@ -166,10 +157,10 @@ export function tryFunction(it, lookup) {
          * @returns {*}
          */
         closest: function (targetLocation, points, map) {
-            var self = this;
+            let self = this;
             if (points.length < 1) return null;
             return points.reduce(function (prev, curr) {
-                var prevDistance = self.locationDistance(targetLocation, prev, map),
+                let prevDistance = self.locationDistance(targetLocation, prev, map),
                     currDistance = self.locationDistance(targetLocation, curr, map);
                 return (prevDistance < currDistance) ? prev : curr;
             });
@@ -178,7 +169,7 @@ export function tryFunction(it, lookup) {
             return Math.sqrt(dx * dx + dy * dy);
         },
         locationDistance: function (location1, location2, map) {
-            var point1 = map.latLngToLayerPoint(location1),
+            let point1 = map.latLngToLayerPoint(location1),
                 point2 = map.latLngToLayerPoint(location2),
 
                 dx = point1.x - point2.x,
@@ -194,7 +185,7 @@ export function tryFunction(it, lookup) {
                 if (hex[0] === '#') {
                     hex = hex.substring(1, hex.length);
                 }
-                var r = parseInt(hex[0] + hex[1], 16),
+                let r = parseInt(hex[0] + hex[1], 16),
                     g = parseInt(hex[2] + hex[3], 16),
                     b = parseInt(hex[4] + hex[5], 16);
 

@@ -1,17 +1,9 @@
 import './style/app.scss';
 import 'leaflet';
-
 import './glify.js';
-import './canvasoverlay.js';
 
 import * as points from './data/86T.json';
 import * as districts from './data/CZDistricts.json';
-
-//node dependencies
-import '../node_modules/earcut/src/earcut.js';
-import '../node_modules/rbush/rbush.js';
-import '../node_modules/point-in-polygon/index.js';
-
 
 const map = L.map('map').setView([50.00, 14.44], 8);
 

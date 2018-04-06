@@ -1,5 +1,5 @@
 function mapMatrix() {
-    var _mapMatrix = new Float32Array(16);
+    const _mapMatrix = new Float32Array(16);
 
     _mapMatrix._set = _mapMatrix.set;
     _mapMatrix.set = function () {

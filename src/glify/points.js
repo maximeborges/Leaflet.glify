@@ -14,7 +14,7 @@ function Points(settings) {
 
     this.active = true;
 
-    var self = this,
+    let self = this,
         glLayer = this.glLayer = L.canvasOverlay(function () {
             self.drawOnCanvas();
         })
@@ -79,7 +79,7 @@ Points.prototype = {
      * @returns {Points}
      */
     setup: function () {
-        var settings = this.settings;
+        let settings = this.settings;
         if (settings.click) {
             L.glify.setupClick(settings.map);
         }
@@ -99,7 +99,7 @@ Points.prototype = {
         this.resetVertices();
 
         //look up the locations for the inputs to our shaders.
-        var gl = this.gl,
+        let gl = this.gl,
             settings = this.settings,
             canvas = this.canvas,
             program = this.program,
@@ -138,7 +138,7 @@ Points.prototype = {
         this.verts = [];
 
         // -- data
-        var verts = this.verts,
+        let verts = this.verts,
             settings = this.settings,
             data = settings.data,
             colorFn,
@@ -200,7 +200,7 @@ Points.prototype = {
      * @returns {Points}
      */
     setupVertexShader: function () {
-        var gl = this.gl,
+        let gl = this.gl,
             settings = this.settings,
             vertexShaderSource = typeof settings.vertexShaderSource === 'function' ? settings.vertexShaderSource() : settings.vertexShaderSource,
             vertexShader = gl.createShader(gl.VERTEX_SHADER);
@@ -218,7 +218,7 @@ Points.prototype = {
      * @returns {Points}
      */
     setupFragmentShader: function () {
-        var gl = this.gl,
+        let gl = this.gl,
             settings = this.settings,
             fragmentShaderSource = typeof settings.fragmentShaderSource === 'function' ? settings.fragmentShaderSource() : settings.fragmentShaderSource,
             fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -237,7 +237,7 @@ Points.prototype = {
      */
     setupProgram: function () {
         // link shaders to create our program
-        var gl = this.gl,
+        let gl = this.gl,
             program = gl.createProgram();
 
         gl.attachShader(program, this.vertexShader);
@@ -253,13 +253,13 @@ Points.prototype = {
     },
 
     pointSize: function () {
-        var settings = this.settings,
+        let settings = this.settings,
             map = settings.map,
             pointSize = settings.size,
             // -- Scale to current zoom
             zoom = map.getZoom();
 
-        return pointSize === null ? Math.max(zoom - 4.0, 1.0) : pointSize
+        return pointSize === null ? Math.max(zoom - 4.0, 1.0) : pointSize;
     },
 
     /**
@@ -269,7 +269,7 @@ Points.prototype = {
     drawOnCanvas: function () {
         if (this.gl == null) return this;
 
-        var gl = this.gl,
+        let gl = this.gl,
             canvas = this.canvas,
             settings = this.settings,
             map = settings.map,
@@ -316,7 +316,7 @@ Points.prototype = {
      * @returns {*}
      */
     lookup: function (coords) {
-        var x = coords.lat - 0.03,
+        let x = coords.lat - 0.03,
             y,
 
             xMax = coords.lat + 0.03,
@@ -347,6 +347,7 @@ Points.prototype = {
         //try matches first, if it is empty, try the data, and hope it isn't too big
         return L.glify.closest(coords, matches.length === 0 ? this.settings.data.slice(0) : matches, this.settings.map);
     },
+
     remove: function () {
         this.settings.map.removeLayer(this.glLayer);
         this.active = false;
@@ -355,7 +356,7 @@ Points.prototype = {
 };
 
 Points.tryClick = function (e, map) {
-    var result,
+    let result,
         settings,
         instance,
         closestFromEach = [],

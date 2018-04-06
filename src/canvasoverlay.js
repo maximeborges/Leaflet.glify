@@ -1,12 +1,8 @@
-/*
-originally taken from: http://www.sumbera.com/gist/js/leaflet/canvas/L.CanvasOverlay.js, added and customized as part of this lib because of need from library
- Generic  Canvas Overlay for leaflet,
- Stanislav Sumbera, April , 2014
-
- - added userDrawFunc that is called when Canvas need to be redrawn
- - added few useful params fro userDrawFunc callback
- - fixed resize map bug
- inspired & portions taken from  :   https://github.com/Leaflet/Leaflet.heat
+/**
+ * Generic  Canvas Overlay for leaflet
+ *
+ * @link http://www.sumbera.com/gist/js/leaflet/canvas/L.CanvasOverlay.js
+ * @link https://github.com/Leaflet/Leaflet.heat
  */
 
 L.CanvasOverlay = L.Layer.extend({
@@ -41,9 +37,8 @@ L.CanvasOverlay = L.Layer.extend({
         this._map = map;
         this.canvas = this.canvas || document.createElement('canvas');
 
-        var size = this._map.getSize()
-            , animated = this._map.options.zoomAnimation && L.Browser.any3d
-        ;
+        const size = this._map.getSize();
+        const animated = this._map.options.zoomAnimation && L.Browser.any3d;
 
         this.canvas.width = size.x;
         this.canvas.height = size.y;
@@ -84,17 +79,16 @@ L.CanvasOverlay = L.Layer.extend({
     },
 
     _reset: function () {
-        var topLeft = this._map.containerPointToLayerPoint([0, 0]);
+        const topLeft = this._map.containerPointToLayerPoint([0, 0]);
         L.DomUtil.setPosition(this.canvas, topLeft);
         this._redraw();
     },
 
     _redraw: function () {
-        var size = this._map.getSize()
-            , bounds = this._map.getBounds()
-            , zoomScale = (size.x * 180) / (20037508.34 * (bounds.getEast() - bounds.getWest())) // resolution = 1/zoomScale
-            , zoom = this._map.getZoom()
-        ;
+        const size = this._map.getSize();
+        const bounds = this._map.getBounds();
+        const zoomScale = (size.x * 180) / (20037508.34 * (bounds.getEast() - bounds.getWest())); // resolution = 1/zoomScale
+        const zoom = this._map.getZoom();
 
         if (this._userDrawFunc) {
             this._userDrawFunc(this, {

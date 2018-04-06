@@ -11,7 +11,7 @@ function Shapes(settings) {
 
     this.active = true;
 
-    var self = this,
+    let self = this,
         glLayer = this.glLayer = L.canvasOverlay(function () {
             self.drawOnCanvas();
         })
@@ -29,12 +29,9 @@ function Shapes(settings) {
 
     this.pixelsToWebGLMatrix = new Float32Array(16);
     this.mapMatrix = L.glify.mapMatrix();
-    this.vertexShader = null;
-    this.fragmentShader = null;
     this.program = null;
     this.matrix = null;
     this.verts = null;
-    this.latLngLookup = null;
     this.polygonLookup = null;
 
     this
@@ -74,7 +71,7 @@ Shapes.prototype = {
      * @returns {Shapes}
      */
     setup: function () {
-        var settings = this.settings;
+        let settings = this.settings;
         if (settings.click) {
             L.glify.setupClick(settings.map);
         }
@@ -92,14 +89,12 @@ Shapes.prototype = {
         this.resetVertices();
         // triangles or point count
 
-        var pixelsToWebGLMatrix = this.pixelsToWebGLMatrix,
+        let pixelsToWebGLMatrix = this.pixelsToWebGLMatrix,
             settings = this.settings,
             canvas = this.canvas,
             gl = this.gl,
             glLayer = this.glLayer,
-            start = new Date(),
             verts = this.verts,
-            numPoints = verts.length / 5,
             vertexBuffer = gl.createBuffer(),
             vertArray = new Float32Array(verts),
             size = vertArray.BYTES_PER_ELEMENT,
@@ -107,15 +102,12 @@ Shapes.prototype = {
             vertex = gl.getAttribLocation(program, 'vertex'),
             opacity = gl.getUniformLocation(program, 'opacity');
 
-        console.log("updated at  " + new Date().setTime(new Date().getTime() - start.getTime()) + " ms ");
-
         gl.uniform1f(opacity, this.settings.opacity);
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, vertArray, gl.STATIC_DRAW);
         gl.vertexAttribPointer(vertex, 2, gl.FLOAT, false, size * 5, 0);
         gl.enableVertexAttribArray(vertex);
 
-        //  gl.disable(gl.DEPTH_TEST);
         // ----------------------------
         // look up the locations for the inputs to our shaders.
         this.matrix = gl.getUniformLocation(program, 'matrix');
@@ -144,7 +136,7 @@ Shapes.prototype = {
         this.verts = [];
         this.polygonLookup = new PolygonLookup();
 
-        var pixel,
+        let pixel,
             verts = this.verts,
             polygonLookup = this.polygonLookup,
             index,
@@ -199,16 +191,15 @@ Shapes.prototype = {
             }
         }
 
-        console.log("num points:   " + (verts.length / 5));
-
         return this;
     },
+
     /**
      *
      * @returns {Shapes}
      */
     setupVertexShader: function () {
-        var gl = this.gl,
+        let gl = this.gl,
             settings = this.settings,
             vertexShaderSource = typeof settings.vertexShaderSource === 'function' ? settings.vertexShaderSource() : settings.vertexShaderSource,
             vertexShader = gl.createShader(gl.VERTEX_SHADER);
@@ -226,7 +217,7 @@ Shapes.prototype = {
      * @returns {Shapes}
      */
     setupFragmentShader: function () {
-        var gl = this.gl,
+        let gl = this.gl,
             settings = this.settings,
             fragmentShaderSource = typeof settings.fragmentShaderSource === 'function' ? settings.fragmentShaderSource() : settings.fragmentShaderSource,
             fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -245,7 +236,7 @@ Shapes.prototype = {
      */
     setupProgram: function () {
         // link shaders to create our program
-        var gl = this.gl,
+        let gl = this.gl,
             program = gl.createProgram();
 
         gl.attachShader(program, this.vertexShader);
@@ -267,7 +258,7 @@ Shapes.prototype = {
     drawOnCanvas: function () {
         if (this.gl == null) return this;
 
-        var gl = this.gl,
+        let gl = this.gl,
             settings = this.settings,
             canvas = this.canvas,
             map = settings.map,
@@ -322,7 +313,7 @@ Shapes.prototype = {
 };
 
 Shapes.tryClick = function (e, map) {
-    var result,
+    let result,
         settings,
         feature;
 
