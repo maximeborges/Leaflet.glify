@@ -13,7 +13,7 @@ const polygon = require('./shader/fragment/polygon.glsl');
 const defaultGlsl = require('./shader/vertex/default.glsl');
 
 function glslMin(src) {
-    return src
+    const s = src
     //remove possible pointless windows character
         .replace(/\r/g, '')
         //remove comments
@@ -24,6 +24,9 @@ function glslMin(src) {
         .replace(/\t+/g, ' ')
         //remove big spaces
         .replace(/\s\s+|\t/g, ' ');
+
+    console.log(s);
+    return s;
 }
 
 export function defaults(userSettings, defaults) {
@@ -229,14 +232,14 @@ export function tryFunction(it, lookup) {
         },
         mapMatrix: MapMatrix,
         shader: {
-            vertex: glslMin(defaultGlsl),
+            vertex: defaultGlsl,
             fragment: {
-                dot: glslMin(dot),
-                point: glslMin(point),
-                puck: glslMin(puck),
-                simpleCircle: glslMin(simpleCircle),
-                square: glslMin(square),
-                polygon: glslMin(polygon)
+                dot: dot,
+                point: point,
+                puck: puck,
+                simpleCircle: simpleCircle,
+                square: square,
+                polygon: polygon
             }
         }
     };
