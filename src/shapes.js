@@ -70,7 +70,7 @@ export default class Shapes extends MapItem {
         gl.uniformMatrix4fv(this.matrix, false, pixelsToWebGLMatrix);
 
         if (settings.shaderVars !== null) {
-            L.glify.attachShaderVars(size, gl, program, settings.shaderVars);
+            this.attachShaderVars(size, gl, program, settings.shaderVars);
         }
 
         glLayer.redraw();
@@ -95,7 +95,7 @@ export default class Shapes extends MapItem {
             features = data.features,
             feature,
             colorFn,
-            color = tryFunction(settings.color, L.glify),
+            color = tryFunction(settings.color, this),
             featureIndex = 0,
             featureMax = features.length,
             triangles,
@@ -125,18 +125,18 @@ export default class Shapes extends MapItem {
                 color = colorFn();
             }
 
-            flat = L.glify.flattenData(feature.geometry.coordinates);
+            flat = this.flattenData(feature.geometry.coordinates);
 
             indices = earcut(flat.vertices, flat.holes, flat.dimensions);
 
             dim = feature.geometry.coordinates[0][0].length;
             for (i = 0, iMax = indices.length; i < iMax; i++) {
                 index = indices[i];
-                triangles.push(flat.vertices[index * dim + L.glify.longitudeKey], flat.vertices[index * dim + L.glify.latitudeKey]);
+                triangles.push(flat.vertices[index * dim + this.longitudeKey], flat.vertices[index * dim + this.latitudeKey]);
             }
 
             for (i = 0, iMax = triangles.length; i < iMax; i) {
-                pixel = L.glify.latLonToPixel(triangles[i++], triangles[i++]);
+                pixel = this.latLonToPixel(triangles[i++], triangles[i++]);
                 verts.push(pixel.x, pixel.y, color.r, color.g, color.b);
             }
         }
@@ -162,7 +162,7 @@ export default class Shapes extends MapItem {
             topLeft = new L.LatLng(bounds.getNorth(), bounds.getWest()),
             // -- Scale to current zoom
             scale = Math.pow(2, map.getZoom()),
-            offset = L.glify.latLonToPixel(topLeft.lat, topLeft.lng),
+            offset = this.latLonToPixel(topLeft.lat, topLeft.lng),
             mapMatrix = this.mapMatrix,
             pixelsToWebGLMatrix = this.pixelsToWebGLMatrix;
 

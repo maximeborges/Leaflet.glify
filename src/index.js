@@ -11,7 +11,7 @@ L.glify = new GLMap();
 L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-background,$fff[difference],$fff[@23],$fff[hsl-saturation@20],toner-lines[destination-in])/{z}/{x}/{y}.png")
     .addTo(map);
 
-L.glify.getShapes({
+L.glify.shapes({
     map: map,
     click: function (e, feature) {
         L.popup()
@@ -25,7 +25,7 @@ L.glify.getShapes({
     data: districts
 });
 
-L.glify.getPoints({
+L.glify.points({
     map: map,
     click: function (e, point, xy) {
         //set up a standalone popup (use a popup as a layer)

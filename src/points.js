@@ -69,7 +69,7 @@ export default class Points extends MapItem {
         gl.enableVertexAttribArray(vertex);
 
         if (settings.shaderVars !== null) {
-            L.glify.attachShaderVars(size, gl, program, settings.shaderVars);
+            this.attachShaderVars(size, gl, program, settings.shaderVars);
         }
 
         glLayer.redraw();
@@ -87,12 +87,12 @@ export default class Points extends MapItem {
             settings = this.settings,
             data = settings.data,
             colorFn,
-            color = tryFunction(settings.color, L.glify),
+            color = tryFunction(settings.color, this),
             i = 0,
             max = data.length,
             latLngLookup = this.latLngLookup,
-            latitudeKey = L.glify.latitudeKey,
-            longitudeKey = L.glify.longitudeKey,
+            latitudeKey = this.latitudeKey,
+            longitudeKey = this.longitudeKey,
             latLng,
             pixel,
             lookup,
@@ -109,7 +109,7 @@ export default class Points extends MapItem {
             latLng = data[i];
             key = latLng[latitudeKey].toFixed(2) + 'x' + latLng[longitudeKey].toFixed(2);
             lookup = latLngLookup[key];
-            pixel = L.glify.latLonToPixel(latLng[latitudeKey], latLng[longitudeKey]);
+            pixel = this.latLonToPixel(latLng[latitudeKey], latLng[longitudeKey]);
 
             if (lookup === undefined) {
                 lookup = latLngLookup[key] = [];
@@ -166,7 +166,7 @@ export default class Points extends MapItem {
             map = settings.map,
             bounds = map.getBounds(),
             topLeft = new L.LatLng(bounds.getNorth(), bounds.getWest()),
-            offset = L.glify.latLonToPixel(topLeft.lat, topLeft.lng),
+            offset = this.latLonToPixel(topLeft.lat, topLeft.lng),
             zoom = map.getZoom(),
             scale = Math.pow(2, zoom),
             mapMatrix = this.mapMatrix,
@@ -225,7 +225,7 @@ export default class Points extends MapItem {
         }
 
         //try matches first, if it is empty, try the data, and hope it isn't too big
-        return L.glify.closest(coords, matches.length === 0 ? this.settings.data.slice(0) : matches, this.settings.map);
+        return this.closest(coords, matches.length === 0 ? this.settings.data.slice(0) : matches, this.settings.map);
     }
 
     tryClick(e, map) {
@@ -252,17 +252,17 @@ export default class Points extends MapItem {
 
         if (closestFromEach.length < 1) return;
 
-        found = L.glify.closest(e.latlng, closestFromEach, map);
+        found = this.closest(e.latlng, closestFromEach, map);
 
         if (found === null) return;
 
         instance = instancesLookup[found];
         if (!instance) return;
 
-        latLng = L.latLng(found[L.glify.latitudeKey], found[L.glify.longitudeKey]);
+        latLng = L.latLng(found[this.latitudeKey], found[this.longitudeKey]);
         xy = map.latLngToLayerPoint(latLng);
 
-        if (L.glify.pointInCircle(xy, e.layerPoint, instance.pointSize() * instance.settings.sensitivity)) {
+        if (this.pointInCircle(xy, e.layerPoint, instance.pointSize() * instance.settings.sensitivity)) {
             result = instance.settings.click(e, found, xy);
             return result !== undefined ? result : true;
         }
