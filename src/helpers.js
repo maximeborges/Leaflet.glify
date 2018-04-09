@@ -16,6 +16,10 @@ export const tryFunction = (it, lookup) => {
         return it;
     }
 
+    if (typeof lookup[it] === 'function') {
+        return lookup[it];
+    }
+
     //we know that it isn't a function, but lookup[it] might be, check that here
     if (typeof lookup === 'undefined' || !lookup.hasOwnProperty(it)) {
         return null;

@@ -1,91 +1,41 @@
-import { defaults, tryFunction } from './helpers';
+import { tryFunction } from './helpers';
 import PolygonLookup from 'polygon-lookup';
 import earcut from 'earcut';
+import MapItem from './map-item';
+const polygon = require('./shader/fragment/polygon.glsl');
+const defaultGlsl = require('./shader/vertex/default.glsl');
 
-function Shapes(settings) {
-    Shapes.instances.push(this);
-    this.settings = defaults(settings, Shapes.defaults);
-
-    if (!settings.data) throw new Error('no "data" array setting defined');
-    if (!settings.map) throw new Error('no leaflet "map" object setting defined');
-
-    this.active = true;
-
-    let self = this,
-        glLayer = this.glLayer = L.canvasOverlay(function () {
-            self.drawOnCanvas();
-        })
-            .addTo(settings.map),
-        canvas = this.canvas = glLayer.canvas;
-
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-    canvas.style.position = 'absolute';
-    if (settings.className) {
-        canvas.className += ' ' + settings.className;
+export default class Shapes extends MapItem {
+    get defaultSettings() {
+            return {
+            map: null,
+            data: [],
+            vertexShaderSource: function () {
+                return defaultGlsl;
+            },
+            fragmentShaderSource: function () {
+                return polygon;
+            },
+            click: null,
+            color: 'randomColor',
+            className: '',
+            opacity: 0.5,
+            shaderVars: {
+                color: {
+                    type: 'FLOAT',
+                    start: 2,
+                    size: 3
+                }
+            }
+        };
     }
 
-    this.gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-
-    this.pixelsToWebGLMatrix = new Float32Array(16);
-    this.mapMatrix = L.glify.mapMatrix();
-    this.program = null;
-    this.matrix = null;
-    this.verts = null;
-    this.polygonLookup = null;
-
-    this
-        .setup()
-        .render();
-}
-
-Shapes.defaults = {
-    map: null,
-    data: [],
-    vertexShaderSource: function () {
-        return L.glify.shader.vertex;
-    },
-    fragmentShaderSource: function () {
-        return L.glify.shader.fragment.polygon;
-    },
-    click: null,
-    color: 'random',
-    className: '',
-    opacity: 0.5,
-    shaderVars: {
-        color: {
-            type: 'FLOAT',
-            start: 2,
-            size: 3
-        }
-    }
-};
-
-//statics
-Shapes.instances = [];
-
-Shapes.prototype = {
-    maps: [],
     /**
      *
      * @returns {Shapes}
      */
-    setup: function () {
-        let settings = this.settings;
-        if (settings.click) {
-            L.glify.setupClick(settings.map);
-        }
-
-        return this
-            .setupVertexShader()
-            .setupFragmentShader()
-            .setupProgram();
-    },
-    /**
-     *
-     * @returns {Shapes}
-     */
-    render: function () {
+    render() {
+        this._polygonLookup = null;
         this.resetVertices();
         // triangles or point count
 
@@ -126,26 +76,26 @@ Shapes.prototype = {
         glLayer.redraw();
 
         return this;
-    },
+    }
 
     /**
      *
      * @returns {Shapes}
      */
-    resetVertices: function () {
+    resetVertices() {
         this.verts = [];
-        this.polygonLookup = new PolygonLookup();
+        this._polygonLookup = new PolygonLookup();
 
         let pixel,
             verts = this.verts,
-            polygonLookup = this.polygonLookup,
+            polygonLookup = this._polygonLookup,
             index,
             settings = this.settings,
             data = settings.data,
             features = data.features,
             feature,
             colorFn,
-            color = tryFunction(settings.color, L.glify.color),
+            color = tryFunction(settings.color, L.glify),
             featureIndex = 0,
             featureMax = features.length,
             triangles,
@@ -192,71 +142,16 @@ Shapes.prototype = {
         }
 
         return this;
-    },
-
-    /**
-     *
-     * @returns {Shapes}
-     */
-    setupVertexShader: function () {
-        let gl = this.gl,
-            settings = this.settings,
-            vertexShaderSource = typeof settings.vertexShaderSource === 'function' ? settings.vertexShaderSource() : settings.vertexShaderSource,
-            vertexShader = gl.createShader(gl.VERTEX_SHADER);
-
-        gl.shaderSource(vertexShader, vertexShaderSource);
-        gl.compileShader(vertexShader);
-
-        this.vertexShader = vertexShader;
-
-        return this;
-    },
-
-    /**
-     *
-     * @returns {Shapes}
-     */
-    setupFragmentShader: function () {
-        let gl = this.gl,
-            settings = this.settings,
-            fragmentShaderSource = typeof settings.fragmentShaderSource === 'function' ? settings.fragmentShaderSource() : settings.fragmentShaderSource,
-            fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-
-        gl.shaderSource(fragmentShader, fragmentShaderSource);
-        gl.compileShader(fragmentShader);
-
-        this.fragmentShader = fragmentShader;
-
-        return this;
-    },
-
-    /**
-     *
-     * @returns {Shapes}
-     */
-    setupProgram: function () {
-        // link shaders to create our program
-        let gl = this.gl,
-            program = gl.createProgram();
-
-        gl.attachShader(program, this.vertexShader);
-        gl.attachShader(program, this.fragmentShader);
-        gl.linkProgram(program);
-        gl.useProgram(program);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        gl.enable(gl.BLEND);
-
-        this.program = program;
-
-        return this;
-    },
+    }
 
     /**
      *
      * @return Shapes
      */
-    drawOnCanvas: function () {
-        if (this.gl == null) return this;
+    drawOnCanvas() {
+        if (this.gl == null) {
+            return this;
+        }
 
         let gl = this.gl,
             settings = this.settings,
@@ -284,52 +179,29 @@ Shapes.prototype = {
 
         gl.vertexAttrib1f(gl.aPointSize, pointSize);
         // -- attach matrix value to 'mapMatrix' uniform in shader
-        gl.uniformMatrix4fv(this.matrix, false, mapMatrix);
+        gl.uniformMatrix4fv(this.matrix, false, mapMatrix.matrix);
         gl.drawArrays(gl.TRIANGLES, 0, this.verts.length / 5);
 
         return this;
-    },
-
-    /**
-     *
-     * @param {L.Map} [map]
-     * @returns {Shapes}
-     */
-    addTo: function (map) {
-        this.glLayer.addTo(map || this.settings.map);
-        this.active = true;
-        return this.render();
-    },
-
-    /**
-     *
-     * @returns {Shapes}
-     */
-    remove: function () {
-        this.settings.map.removeLayer(this.glLayer);
-        this.active = false;
-        return this;
     }
-};
 
-Shapes.tryClick = function (e, map) {
-    let result,
-        settings,
-        feature;
+    tryClick(e, map) {
+        let result,
+            settings,
+            feature;
 
-    Shapes.instances.forEach(function (_instance) {
-        settings = _instance.settings;
-        if (!_instance.active) return;
-        if (settings.map !== map) return;
-        if (!settings.click) return;
+        this.instances.forEach(instance => {
+            settings = instance.settings;
+            if (!instance.active) return;
+            if (settings.map !== map) return;
+            if (!settings.click) return;
 
-        feature = _instance.polygonLookup.search(e.latlng.lng, e.latlng.lat);
-        if (feature !== undefined) {
-            result = settings.click(e, feature);
-        }
-    });
+            feature = instance._polygonLookup.search(e.latlng.lng, e.latlng.lat);
+            if (feature !== undefined) {
+                result = settings.click(e, feature);
+            }
+        });
 
-    return result !== undefined ? result : true;
-};
-
-export default Shapes;
+        return result !== undefined ? result : true;
+    }
+}

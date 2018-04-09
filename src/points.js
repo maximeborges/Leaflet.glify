@@ -1,101 +1,45 @@
-import { defaults, tryFunction } from './helpers';
+import { tryFunction } from './helpers';
+import MapItem from './map-item';
 
-/**
- *
- * @param settings
- * @constructor
- */
-function Points(settings) {
-    Points.instances.push(this);
-    this.settings = defaults(settings, Points.defaults);
+const point = require('./shader/fragment/point.glsl');
+const defaultGlsl = require('./shader/vertex/default.glsl');
 
-    if (!settings.data) throw new Error('no "data" array setting defined');
-    if (!settings.map) throw new Error('no leaflet "map" object setting defined');
-
-    this.active = true;
-
-    let self = this,
-        glLayer = this.glLayer = L.canvasOverlay(function () {
-            self.drawOnCanvas();
-        })
-            .addTo(settings.map),
-        canvas = this.canvas = glLayer.canvas;
-
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-    canvas.style.position = 'absolute';
-    if (settings.className) {
-        canvas.className += ' ' + settings.className;
+export default class Points extends MapItem {
+    get defaultSettings() {
+        return {
+            map: null,
+            data: [],
+            vertexShaderSource: function () {
+                return defaultGlsl;
+            },
+            fragmentShaderSource: function () {
+                return point;
+            },
+            eachVertex: null,
+            click: null,
+            color: 'randomColor',
+            opacity: 0.8,
+            size: null,
+            className: '',
+            sensitivity: 2,
+            shaderVars: {
+                color: {
+                    type: 'FLOAT',
+                    start: 2,
+                    size: 3
+                }
+            }
+        };
     }
-
-    this.gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-
-    this.pixelsToWebGLMatrix = new Float32Array(16);
-    this.mapMatrix = L.glify.mapMatrix();
-    this.vertexShader = null;
-    this.fragmentShader = null;
-    this.program = null;
-    this.matrix = null;
-    this.verts = null;
-    this.latLngLookup = null;
-
-    this
-        .setup()
-        .render();
-}
-
-Points.defaults = {
-    map: null,
-    data: [],
-    vertexShaderSource: function () {
-        return L.glify.shader.vertex;
-    },
-    fragmentShaderSource: function () {
-        return L.glify.shader.fragment.point;
-    },
-    eachVertex: null,
-    click: null,
-    color: 'random',
-    opacity: 0.8,
-    size: null,
-    className: '',
-    sensitivity: 2,
-    shaderVars: {
-        color: {
-            type: 'FLOAT',
-            start: 2,
-            size: 3
-        }
-    }
-};
-
-//statics
-Points.instances = [];
-
-Points.prototype = {
-    maps: [],
-    /**
-     *
-     * @returns {Points}
-     */
-    setup: function () {
-        let settings = this.settings;
-        if (settings.click) {
-            L.glify.setupClick(settings.map);
-        }
-
-        return this
-            .setupVertexShader()
-            .setupFragmentShader()
-            .setupProgram();
-    },
 
     /**
      *
      * @returns {Points}
      */
-    render: function () {
-
+    render() {
+        this.latLngLookup = null;
+        this.vertexShader = null;
+        this.fragmentShader = null;
         this.resetVertices();
 
         //look up the locations for the inputs to our shaders.
@@ -131,8 +75,9 @@ Points.prototype = {
         glLayer.redraw();
 
         return this;
-    },
-    resetVertices: function () {
+    }
+
+    resetVertices() {
         //empty verts and repopulate
         this.latLngLookup = {};
         this.verts = [];
@@ -142,7 +87,7 @@ Points.prototype = {
             settings = this.settings,
             data = settings.data,
             colorFn,
-            color = tryFunction(settings.color, L.glify.color),
+            color = tryFunction(settings.color, L.glify),
             i = 0,
             max = data.length,
             latLngLookup = this.latLngLookup,
@@ -184,75 +129,19 @@ Points.prototype = {
         }
 
         return this;
-    },
+    }
+
     /**
      *
      * @param data
      * @returns {Points}
      */
-    setData: function (data) {
+    setData(data) {
         this.settings.data = data;
         return this;
-    },
+    }
 
-    /**
-     *
-     * @returns {Points}
-     */
-    setupVertexShader: function () {
-        let gl = this.gl,
-            settings = this.settings,
-            vertexShaderSource = typeof settings.vertexShaderSource === 'function' ? settings.vertexShaderSource() : settings.vertexShaderSource,
-            vertexShader = gl.createShader(gl.VERTEX_SHADER);
-
-        gl.shaderSource(vertexShader, vertexShaderSource);
-        gl.compileShader(vertexShader);
-
-        this.vertexShader = vertexShader;
-
-        return this;
-    },
-
-    /**
-     *
-     * @returns {Points}
-     */
-    setupFragmentShader: function () {
-        let gl = this.gl,
-            settings = this.settings,
-            fragmentShaderSource = typeof settings.fragmentShaderSource === 'function' ? settings.fragmentShaderSource() : settings.fragmentShaderSource,
-            fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-
-        gl.shaderSource(fragmentShader, fragmentShaderSource);
-        gl.compileShader(fragmentShader);
-
-        this.fragmentShader = fragmentShader;
-
-        return this;
-    },
-
-    /**
-     *
-     * @returns {Points}
-     */
-    setupProgram: function () {
-        // link shaders to create our program
-        let gl = this.gl,
-            program = gl.createProgram();
-
-        gl.attachShader(program, this.vertexShader);
-        gl.attachShader(program, this.fragmentShader);
-        gl.linkProgram(program);
-        gl.useProgram(program);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        gl.enable(gl.BLEND);
-
-        this.program = program;
-
-        return this;
-    },
-
-    pointSize: function () {
+    pointSize() {
         let settings = this.settings,
             map = settings.map,
             pointSize = settings.size,
@@ -260,14 +149,16 @@ Points.prototype = {
             zoom = map.getZoom();
 
         return pointSize === null ? Math.max(zoom - 4.0, 1.0) : pointSize;
-    },
+    }
 
     /**
      *
      * @returns {Points}
      */
-    drawOnCanvas: function () {
-        if (this.gl == null) return this;
+    drawOnCanvas() {
+        if (this.gl == null) {
+            return this;
+        }
 
         let gl = this.gl,
             canvas = this.canvas,
@@ -293,29 +184,18 @@ Points.prototype = {
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.vertexAttrib1f(gl.pointSize, this.pointSize());
         // -- attach matrix value to 'mapMatrix' uniform in shader
-        gl.uniformMatrix4fv(this.matrix, false, mapMatrix);
+        gl.uniformMatrix4fv(this.matrix, false, mapMatrix.matrix);
         gl.drawArrays(gl.POINTS, 0, settings.data.length);
 
         return this;
-    },
-
-    /**
-     *
-     * @param map
-     * @returns {Points}
-     */
-    addTo: function (map) {
-        this.glLayer.addTo(map || this.settings.map);
-        this.active = true;
-        return this.render();
-    },
+    }
 
     /**
      * Iterates through a small area around the
      * @param {L.LatLng} coords
      * @returns {*}
      */
-    lookup: function (coords) {
+    lookup(coords) {
         let x = coords.lat - 0.03,
             y,
 
@@ -346,53 +226,45 @@ Points.prototype = {
 
         //try matches first, if it is empty, try the data, and hope it isn't too big
         return L.glify.closest(coords, matches.length === 0 ? this.settings.data.slice(0) : matches, this.settings.map);
-    },
-
-    remove: function () {
-        this.settings.map.removeLayer(this.glLayer);
-        this.active = false;
-        return this;
     }
-};
 
-Points.tryClick = function (e, map) {
-    let result,
-        settings,
-        instance,
-        closestFromEach = [],
-        instancesLookup = {},
-        point,
-        xy,
-        found,
-        latLng;
+    tryClick(e, map) {
+        let result,
+            settings,
+            instance,
+            closestFromEach = [],
+            instancesLookup = {},
+            point,
+            xy,
+            found,
+            latLng;
 
-    Points.instances.forEach(function (_instance) {
-        settings = _instance.settings;
-        if (!_instance.active) return;
-        if (settings.map !== map) return;
-        if (!settings.click) return;
+        this.instances.forEach(instance => {
+            settings = instance.settings;
+            if (!instance.active) return;
+            if (settings.map !== map) return;
+            if (!settings.click) return;
 
-        point = _instance.lookup(e.latlng);
-        instancesLookup[point] = _instance;
-        closestFromEach.push(point);
-    });
+            point = instance.lookup(e.latlng);
+            instancesLookup[point] = instance;
+            closestFromEach.push(point);
+        });
 
-    if (closestFromEach.length < 1) return;
+        if (closestFromEach.length < 1) return;
 
-    found = L.glify.closest(e.latlng, closestFromEach, map);
+        found = L.glify.closest(e.latlng, closestFromEach, map);
 
-    if (found === null) return;
+        if (found === null) return;
 
-    instance = instancesLookup[found];
-    if (!instance) return;
+        instance = instancesLookup[found];
+        if (!instance) return;
 
-    latLng = L.latLng(found[L.glify.latitudeKey], found[L.glify.longitudeKey]);
-    xy = map.latLngToLayerPoint(latLng);
+        latLng = L.latLng(found[L.glify.latitudeKey], found[L.glify.longitudeKey]);
+        xy = map.latLngToLayerPoint(latLng);
 
-    if (L.glify.pointInCircle(xy, e.layerPoint, instance.pointSize() * instance.settings.sensitivity)) {
-        result = instance.settings.click(e, found, xy);
-        return result !== undefined ? result : true;
+        if (L.glify.pointInCircle(xy, e.layerPoint, instance.pointSize() * instance.settings.sensitivity)) {
+            result = instance.settings.click(e, found, xy);
+            return result !== undefined ? result : true;
+        }
     }
-};
-
-export default Points;
+}
