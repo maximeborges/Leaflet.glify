@@ -25,7 +25,7 @@ L.glify.shapes({
     data: districts
 });
 
-L.glify.points({
+L.glify.images({
     map: map,
     click: function (e, point, xy) {
         //set up a standalone popup (use a popup as a layer)
