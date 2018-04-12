@@ -31,7 +31,7 @@ L.glify.images({
         //set up a standalone popup (use a popup as a layer)
         L.popup()
             .setLatLng(point)
-            .setContent("You clicked the point at longitude:" + point[L.glify.longitudeKey] + ', latitude:' + point[L.glify.latitudeKey])
+            .setContent("You clicked the point at longitude:" + point[1] + ', latitude:' + point[0])
             .openOn(map);
 
         console.log(point);

@@ -14,8 +14,8 @@ void main() {
 
   //SMOOTH
   float gamma = 2.2;
-  color1.rgb = pow(_color1.rgb, vec3(gamma));
-  color2.rgb = pow(_color2.rgb, vec3(gamma));
+  _color1.rgb = pow(_color1.rgb, vec3(gamma));
+  _color2.rgb = pow(_color2.rgb, vec3(gamma));
 
   vec4 puck = mix(
     mix(

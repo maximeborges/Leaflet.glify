@@ -2,6 +2,10 @@ import { tryFunction } from './helpers';
 import MapItem from './map-item';
 
 const point = require('./shader/fragment/point.glsl');
+const square = require('./shader/fragment/square.glsl');
+const puck = require('./shader/fragment/puck.glsl');
+const circle = require('./shader/fragment/simple-circle.glsl');
+const dot = require('./shader/fragment/dot.glsl');
 const defaultGlsl = require('./shader/vertex/default.glsl');
 
 export default class Points extends MapItem {
@@ -30,6 +34,25 @@ export default class Points extends MapItem {
                 }
             }
         };
+    }
+
+    constructor(settings, type = 'points') {
+        settings.fragmentShaderSource = () => {
+            switch (type) {
+                case 'square':
+                    return square;
+                case 'puck':
+                    return puck;
+                case 'circle':
+                    return circle;
+                case 'dot':
+                    return dot;
+                default:
+                    return point;
+            }
+        };
+
+        super(settings);
     }
 
     /**

@@ -1,8 +1,8 @@
 precision mediump float;
 varying vec4 _color;
 uniform float opacity;
-varying highp vec2 _vTextureCoord;
-uniform sampler2D _uSampler;
+varying highp vec4 _vertex;
+uniform sampler2D _texture;
 
 void main() {
   float border = 0.1;
@@ -39,5 +39,5 @@ void main() {
   float t2 = 1.0 + smoothstep(radius, radius + outerBorder, dist2)
                 - smoothstep(radius - innerBorder, radius, dist2);
 
-  gl_FragColor = texture2D(_uSampler, _vTextureCoord);
+  gl_FragColor = texture2D(_texture, _vertex);
 }

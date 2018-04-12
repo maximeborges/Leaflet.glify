@@ -32,10 +32,7 @@ export default class MapItem {
             throw new Error('no leaflet "map" object setting defined');
         }
 
-        let glLayer = this.glLayer = L.canvasOverlay(() => {
-                this.drawOnCanvas();
-            })
-                .addTo(settings.map),
+        let glLayer = this.glLayer = L.canvasOverlay(() => this.drawOnCanvas()).addTo(settings.map),
             canvas = this.canvas = glLayer.canvas;
 
         canvas.width = canvas.clientWidth;
