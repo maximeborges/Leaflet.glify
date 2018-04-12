@@ -5,6 +5,7 @@ const getClientEnvironment = require('./env');
 const paths = require('./paths');
 const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
@@ -43,7 +44,7 @@ module.exports = {
             // It is guaranteed to exist because we tweak it in `env.js`
             process.env.NODE_PATH.split(path.delimiter).filter(Boolean)
         ),
-        extensions: ['.web.js', '.mjs', '.js', '.glsl', '.scss', '.json', '.web.jsx', '.jsx']
+        extensions: ['.web.js', '.mjs', '.js', '.glsl', '.scss', '.json', '.web.jsx', '.jsx', '.gif']
     },
     module: {
         strictExportPresence: true,
@@ -155,7 +156,10 @@ module.exports = {
         // Watcher doesn't work well if you mistype casing in a path so we use
         // a plugin that prints an error when you attempt to do this.
         // See https://github.com/facebookincubator/create-react-app/issues/240
-        new CaseSensitivePathsPlugin()
+        new CaseSensitivePathsPlugin(),
+        new CopyWebpackPlugin([
+            {from:'public/image',to:'static/media'}
+        ])
     ],
     // Some libraries import Node modules but don't use them in the browser.
     // Tell Webpack to provide empty mocks for them so importing them works.

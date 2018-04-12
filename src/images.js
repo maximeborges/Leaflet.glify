@@ -1,9 +1,8 @@
 import { tryFunction } from './helpers';
 import MapItem from './map-item';
 
-const image = require('./shader/fragment/image.glsl');
+const point = require('./shader/fragment/image.glsl');
 const defaultGlsl = require('./shader/vertex/image.glsl');
-const logo = require('./image/7ELEVEN.gif');
 
 export default class Images extends MapItem {
     get defaultSettings() {
@@ -14,7 +13,7 @@ export default class Images extends MapItem {
                 return defaultGlsl;
             },
             fragmentShaderSource: function () {
-                return image;
+                return point;
             },
             eachVertex: null,
             click: null,
@@ -22,19 +21,12 @@ export default class Images extends MapItem {
             opacity: 0.8,
             size: null,
             className: '',
-            sensitivity: 2,
+            sensitivity: 1,
             shaderVars: {
                 color: {
                     type: 'FLOAT',
                     start: 2,
                     size: 3
-                },
-                uSampler: {
-                    type: 'FLOAT',
-                    size: 3,
-                    num: 2,
-                    stride: 0,
-                    offset: 0
                 }
             }
         };
@@ -69,66 +61,41 @@ export default class Images extends MapItem {
         gl.bufferData(gl.ARRAY_BUFFER, vertexArray, gl.STATIC_DRAW);
         gl.vertexAttribPointer(vertex, 2, gl.FLOAT, false, size * 5, 0);
         gl.enableVertexAttribArray(vertex);
-        let texture = this.loadTexture(gl, logo);
-        settings.shaderVars.vTextureCoord = texture;
+        this.loadImageAndCreateTextureInfo(gl, glLayer, 'static/media/7ELEVEN.gif');
 
         if (settings.shaderVars !== null) {
             this.attachShaderVars(size, gl, program, settings.shaderVars);
         }
 
-        glLayer.redraw();
-
         return this;
     }
 
-    loadTexture(gl, url) {
-        const texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, texture);
+    loadImageAndCreateTextureInfo(gl, glLayer, url) {
+        let tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
 
-        // Because images have to be download over the internet
-        // they might take a moment until they are ready.
-        // Until then put a single pixel in the texture so we can
-        // use it immediately. When the image has finished downloading
-        // we'll update the texture with the contents of the image.
-        const level = 0;
-        const internalFormat = gl.RGBA;
-        const width = 1;
-        const height = 1;
-        const border = 0;
-        const srcFormat = gl.RGBA;
-        const srcType = gl.UNSIGNED_BYTE;
-        const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
-        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
-            width, height, border, srcFormat, srcType,
-            pixel);
+        // let's assume all images are not a power of 2
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
-        const image = new Image();
-        image.onload = () => {
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
-                srcFormat, srcType, image);
-
-            // WebGL1 has different requirements for power of 2 images
-            // vs non power of 2 images so check if the image is a
-            // power of 2 in both dimensions.
-            if (this.isPowerOf2(image.width) && this.isPowerOf2(image.height)) {
-                // Yes, it's a power of 2. Generate mips.
-                gl.generateMipmap(gl.TEXTURE_2D);
-            } else {
-                // No, it's not a power of 2. Turn of mips and set
-                // wrapping to clamp to edge
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            }
+        let textureInfo = {
+            width: 1,   // we don't know the size until it loads
+            height: 1,
+            texture: tex,
         };
-        image.src = url;
+        let img = new Image();
+        img.addEventListener('load', function() {
+            textureInfo.width = img.width;
+            textureInfo.height = img.height;
 
-        return texture;
-    }
+            gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+            glLayer.redraw();
+        });
+        img.src = url;
 
-    isPowerOf2(value) {
-        return (value & (value - 1)) === 0;
+        return textureInfo;
     }
 
     resetVertices() {
@@ -202,7 +169,8 @@ export default class Images extends MapItem {
             // -- Scale to current zoom
             zoom = map.getZoom();
 
-        return pointSize === null ? Math.max(zoom - 4.0, 1.0) : pointSize;
+        //return pointSize === null ? Math.max(zoom - 4.0, 1.0) : pointSize;
+        return 32;
     }
 
     /**

@@ -120,6 +120,10 @@ export default class MapItem {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
 
+        console.log(gl.getShaderInfoLog(this.vertexShader));
+        console.log(gl.getShaderInfoLog(this.fragmentShader));
+        console.log(gl.getProgramInfoLog(program));
+
         this.program = program;
 
         return this;

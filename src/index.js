@@ -5,6 +5,8 @@ import * as points from './data/86T.json';
 import * as districts from './data/CZDistricts.json';
 import GLMap from './gl-map';
 
+console.log(points.data.length);
+
 const map = L.map('map').setView([50.00, 14.44], 8);
 L.glify = new GLMap();
 
