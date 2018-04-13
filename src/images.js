@@ -9,6 +9,7 @@ export default class Images extends MapItem {
         return {
             map: null,
             data: [],
+            logos: [],
             vertexShaderSource: function () {
                 return defaultGlsl;
             },

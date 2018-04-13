@@ -120,10 +120,6 @@ export default class MapItem {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
 
-        console.log(gl.getShaderInfoLog(this.vertexShader));
-        console.log(gl.getShaderInfoLog(this.fragmentShader));
-        console.log(gl.getProgramInfoLog(program));
-
         this.program = program;
 
         return this;
@@ -207,7 +203,6 @@ export default class MapItem {
             attribute = attributes[name];
             loc = gl.getAttribLocation(program, name);
             if (loc < 0) {
-                console.log(name, attribute);
                 throw new Error('shader variable ' + name + ' not found');
             }
             gl.vertexAttribPointer(loc, attribute.size, gl[attribute.type], false, size * (attribute.bytes || bytes), size * attribute.start);

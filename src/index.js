@@ -2,30 +2,13 @@ import './style/app.scss';
 import 'leaflet';
 
 import * as points from './data/86T.json';
-import * as districts from './data/CZDistricts.json';
 import GLMap from './gl-map';
 
-console.log(points.data.length);
-
-const map = L.map('map').setView([50.00, 14.44], 8);
+const map = L.map('map').setView([36.0997445, -95.8438734], 8);
 L.glify = new GLMap();
 
 L.tileLayer("http://{s}.sm.mapstack.stamen.com/(toner-background,$fff[difference],$fff[@23],$fff[hsl-saturation@20],toner-lines[destination-in])/{z}/{x}/{y}.png")
     .addTo(map);
-
-L.glify.shapes({
-    map: map,
-    click: function (e, feature) {
-        L.popup()
-            .setLatLng(e.latlng)
-            .setContent("You clicked on " + feature.properties.NAZKR_ENG)
-            .openOn(map);
-
-        console.log(feature);
-        console.log(e);
-    },
-    data: districts
-});
 
 L.glify.images({
     map: map,
@@ -40,5 +23,6 @@ L.glify.images({
         console.log(e);
         console.log(xy);
     },
-    data: points.data
+    data: points.data.map(d => d.point),
+    logos: points.data.map(d => d.logo)
 });
