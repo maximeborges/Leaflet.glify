@@ -2,9 +2,8 @@ import { tryFunction } from './helpers';
 import MapItem from './map-item';
 import { toLatLon, fromLatLon } from 'utm';
 
-
-const line = require('./shader/fragment/line.glsl');
-const defaultGlsl = require('./shader/vertex/default.glsl');
+import line from './shader/fragment/line.glsl';
+import defaultGlsl from './shader/vertex/default.glsl';
 
 export default class Lines extends MapItem {
     get defaultSettings() {

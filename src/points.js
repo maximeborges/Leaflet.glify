@@ -1,8 +1,8 @@
 import { tryFunction } from './helpers';
 import MapItem from './map-item';
 
-const point = require('./shader/fragment/point.glsl');
-const defaultGlsl = require('./shader/vertex/default.glsl');
+import point from './shader/fragment/point.glsl';
+import defaultGlsl from './shader/vertex/default.glsl';
 
 export default class Points extends MapItem {
     get defaultSettings() {

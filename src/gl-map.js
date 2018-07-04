@@ -4,10 +4,12 @@ import ShapeFunction from './shapes';
 import LineFunction from './lines';
 
 export default class GLMap {
-    maps = [];
-    _points;
-    _shapes;
-    _lines;
+    constructor() {
+        this.maps = [];
+        this._points;
+        this._shapes;
+        this._lines;
+    }
 
     points(settings) {
         this._points = new PointFunction(settings);
