@@ -40,3 +40,10 @@ L.glify.points({
     },
     data: points.data
 });
+
+L.glify.lines({
+    map: map,
+    lineWidth: 800,
+    opacity: 1,
+    data: points.data.slice(0, 20)
+});
