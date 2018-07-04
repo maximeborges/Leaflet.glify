@@ -7,6 +7,7 @@
     "build": "SET NODE_ENV=production && npx webpack --mode=production --display-error-details --config config/webpack.config.prod.js",
     "start": "SET NODE_ENV=development && webpack-dev-server --env.development --mode development --config config/webpack.config.dev.js"
   },
+  "module": "src/gl-map.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jtwebb/Leaflet.glify.git"

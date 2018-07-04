@@ -2,22 +2,22 @@ import { defaults } from './helpers';
 import MapMatrix from './map-matrix';
 
 export default class MapItem {
-    settings = {};
-    maps = [];
-    instances = [];
-    active = true;
-    pixelsToWebGLMatrix = new Float32Array(16);
-    mapMatrix = new MapMatrix();
-    program = null;
-    matrix = null;
-    verts = null;
-    longitudeKey = 1;
-    latitudeKey = 0;
-
     constructor(settings) {
         if (new.target === MapItem) {
             throw new TypeError('Cannot construct MapItem instances directly');
         }
+
+        this.settings = {};
+        this.maps = [];
+        this.instances = [];
+        this.active = true;
+        this.pixelsToWebGLMatrix = new Float32Array(16);
+        this.mapMatrix = new MapMatrix();
+        this.program = null;
+        this.matrix = null;
+        this.verts = null;
+        this.longitudeKey = 1;
+        this.latitudeKey = 0;
 
         this.checkAbstractMethods();
 

@@ -1,7 +1,7 @@
 export default class MapMatrix {
-    _mapMatrix = new Float32Array(16);
-
     constructor() {
+        this._mapMatrix = new Float32Array(16);
+
         let self = this;
         this._mapMatrix._set = this._mapMatrix.set;
         this._mapMatrix.set = function() {

@@ -3,9 +3,11 @@ import PointFunction from './points';
 import ShapeFunction from './shapes';
 
 export default class GLMap {
-    maps = [];
-    _points;
-    _shapes;
+    constructor() {
+        this.maps = [];
+        this._points;
+        this._shapes;
+    }
 
     points(settings) {
         this._points = new PointFunction(settings);

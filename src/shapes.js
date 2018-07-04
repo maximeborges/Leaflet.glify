@@ -2,8 +2,9 @@ import { tryFunction } from './helpers';
 import PolygonLookup from 'polygon-lookup';
 import earcut from 'earcut';
 import MapItem from './map-item';
-const polygon = require('./shader/fragment/polygon.glsl');
-const defaultGlsl = require('./shader/vertex/default.glsl');
+
+import polygon from './shader/fragment/polygon.glsl';
+import defaultGlsl from './shader/vertex/default.glsl';
 
 export default class Shapes extends MapItem {
     get defaultSettings() {
